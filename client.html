@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agastya - Client Query Management</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #1a1a1a;
+            --secondary: #2a2a2a;
+            --success: #28a745;
+            --warning: #ffc107;
+            --danger: #dc3545;
+            --info: #17a2b8;
+        }
+
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        .query-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .query-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+
+        .priority-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            animation: pulse 2s infinite;
+        }
+
+        .priority-high {
+            background: #ffe5e5;
+            color: #dc3545;
+        }
+
+        .priority-medium {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .priority-low {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .status-open { background-color: var(--success); }
+        .status-pending { background-color: var(--warning); }
+        .status-closed { background-color: var(--danger); }
+
+        .query-filters {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+
+        .floating-add-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .floating-add-btn:hover {
+            transform: scale(1.1);
+            background: var(--secondary);
+            color: white;
+        }
+
+        .query-form {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 90%;
+            max-width: 600px;
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            z-index: 1001;
+        }
+
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            cursor: pointer;
+            font-size: 20px;
+            color: #666;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease forwards;
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 50px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            height: 100%;
+            width: 2px;
+            background: #dee2e6;
+        }
+
+        .timeline-item {
+            position: relative;
+            padding-bottom: 20px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -54px;
+            top: 0;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--primary);
+        }
+
+        .search-box {
+            position: relative;
+        }
+
+        .search-box input {
+            padding-left: 40px;
+            border-radius: 25px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 15px;
+            font-size: 0.8rem;
+            margin-right: 5px;
+            margin-bottom: 5px;
+            background: #f8f9fa;
+            color: #666;
+            transition: all 0.3s ease;
+        }
+
+        .tag:hover {
+            background: var(--primary);
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="slide-in">Client Queries</h2>
+            <div class="d-flex gap-3">
+                <button class="btn btn-outline-dark" onclick="toggleView('grid')">
+                    <i class="fas fa-th-large"></i>
+                </button>
+                <button class="btn btn-outline-dark" onclick="toggleView('list')">
+                    <i class="fas fa-list"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="query-filters slide-in">
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" class="form-control" placeholder="Search queries...">
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option value="">Priority</option>
+                        <option value="high">High</option>
+                        <option value="medium">Medium</option>
+                        <option value="low">Low</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <select class="form-select">
+                        <option value="">Status</option>
+                        <option value="open">Open</option>
+                        <option value="pending">Pending</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-dark w-100">Filter</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Query Grid -->
+        <div class="row g-4" id="queryGrid">
+            <!-- Query Card 1 -->
+            <div class="col-md-6 col-lg-4 slide-in" style="animation-delay: 0.1s">
+                <div class="query-card p-4 position-relative">
+                    <span class="priority-badge priority-high">High Priority</span>
+                    <h5 class="mb-3">Solar Panel Installation Query</h5>
+                    <p class="text-muted mb-3">Client inquiring about the timeline and process for solar panel installation in their new property.</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted"><i class="far fa-clock me-2"></i>2 hours ago</span>
+                        <span class="text-muted"><i class="far fa-comment me-2"></i>5 responses</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="status-indicator status-open"></span>
+                            <span>Open</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-dark" onclick="viewQuery(1)">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Query Card 2 -->
+            <div class="col-md-6 col-lg-4 slide-in" style="animation-delay: 0.2s">
+                <div class="query-card p-4 position-relative">
+                    <span class="priority-badge priority-medium">Medium Priority</span>
+                    <h5 class="mb-3">Water Conservation System</h5>
+                    <p class="text-muted mb-3">Technical questions about the water recycling system implementation and maintenance schedule.</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted"><i class="far fa-clock me-2"></i>5 hours ago</span>
+                        <span class="text-muted"><i class="far fa-comment me-2"></i>3 responses</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="status-indicator status-pending"></span>
+                            <span>Pending</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-dark" onclick="viewQuery(2)">View Details</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Query Card 3 -->
+            <div class="col-md-6 col-lg-4 slide-in" style="animation-delay: 0.3s">
+                <div class="query-card p-4 position-relative">
+                    <span class="priority-badge priority-low">Low Priority</span>
+                    <h5 class="mb-3">Energy Efficiency Report</h5>
+                    <p class="text-muted mb-3">Request for detailed energy consumption analysis and efficiency recommendations.</p>
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-muted"><i class="far fa-clock me-2"></i>1 day ago</span>
+                        <span class="text-muted"><i class="far fa-comment me-2"></i>2 responses</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <span class="status-indicator status-closed"></span>
+                            <span>Closed</span>
+                        </div>
+                        <button class="btn btn-sm btn-outline-dark" onclick="viewQuery(3)">View Details</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Add Button -->
+        <button class="floating-add-btn" onclick="showQueryForm()">
+            <i class="fas fa-plus"></i>
+        </button>
+
+        <!-- Query Form Modal -->
+        <div class="overlay" id="overlay"></div>
+        <div class="query-form" id="queryForm">
+            <i class="fas fa-times close-btn" onclick="hideQueryForm()"></i>
+            <h4 class="mb-4">New Query</h4>
+            <form>
+                <div class="mb-3">
+                    <label class="form-label">Subject</label>
+                    <input type="text" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-control" rows="4" required></textarea>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <label class="form-label">Priority</label>
+                        <select class="form-select" required>
+                            <option value="high">High</option>
+                            <option value="medium">Medium</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">Category</label>
+                        <select class="form-select" required>
+                            <option value="technical">Technical</option>
+                            <option value="billing">Billing</option>
+                            <option value="support">Support</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-dark">Submit Query</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Show/Hide Query Form
+        function showQueryForm() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('queryForm').style.display = 'block';
+            document.getElementById('queryForm').classList.add('fade-in');
+        }
+
+        function hideQueryForm() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('queryForm').style.display = 'none';
+            document.getElementById('queryForm').classList.remove('fade-in');
+        }
+
+        // View Toggle
+        // View Toggle
+function toggleView(view) {
+    const grid = document.getElementById('queryGrid');
+    const cards = document.querySelectorAll('.query-card');
+    
+    if (view === 'list') {
+        grid.classList.remove('row');
+        cards.forEach(card => {
+            card.parentElement.classList.remove('col-md-6', 'col-lg-4');
+            card.parentElement.classList.add('mb-4', 'w-100');
+            card.classList.add('d-flex', 'flex-row', 'align-items-center');
+            card.querySelector('p').classList.add('flex-grow-1', 'mx-4', 'mb-0');
+            card.querySelector('.priority-badge').style.position = 'static';
+        });
+    } else {
+        grid.classList.add('row');
+        cards.forEach(card => {
+            card.parentElement.classList.add('col-md-6', 'col-lg-4');
+            card.parentElement.classList.remove('mb-4', 'w-100');
+            card.classList.remove('d-flex', 'flex-row', 'align-items-center');
+            card.querySelector('p').classList.remove('flex-grow-1', 'mx-4', 'mb-0');
+            card.querySelector('.priority-badge').style.position = 'absolute';
+        });
+    }
+}
+
+// View Query Details
+function viewQuery(id) {
+    // Create modal for query details
+    const modal = document.createElement('div');
+    modal.className = 'query-form fade-in';
+    modal.style.display = 'block';
+    
+    // Sample data - in production, this would come from a database
+    const queryDetails = {
+        1: {
+            title: 'Solar Panel Installation Query',
+            description: 'Client inquiring about the timeline and process for solar panel installation in their new property.',
+            priority: 'High',
+            status: 'Open',
+            timeline: [
+                { date: '2024-02-13', action: 'Query received', user: 'Client' },
+                { date: '2024-02-13', action: 'Assigned to technical team', user: 'System' },
+                { date: '2024-02-13', action: 'Initial assessment completed', user: 'Tech Team' }
+            ]
+        }
+        // Add more query details as needed
+    };
+
+    const details = queryDetails[id];
+    
+    modal.innerHTML = `
+        <i class="fas fa-times close-btn" onclick="closeQueryDetails(this.parentElement)"></i>
+        <h4 class="mb-4">${details.title}</h4>
+        <div class="mb-4">
+            <span class="priority-badge priority-${details.priority.toLowerCase()}">${details.priority} Priority</span>
+            <div class="mt-3">
+                <strong>Status:</strong> ${details.status}
+            </div>
+            <p class="mt-3">${details.description}</p>
+        </div>
+        <div class="timeline">
+            ${details.timeline.map(item => `
+                <div class="timeline-item">
+                    <small class="text-muted">${item.date}</small>
+                    <p class="mb-0"><strong>${item.action}</strong></p>
+                    <small>By: ${item.user}</small>
+                </div>
+            `).join('')}
+        </div>
+    `;
+
+    document.getElementById('overlay').style.display = 'block';
+    document.body.appendChild(modal);
+}
+
+// Close Query Details
+function closeQueryDetails(modal) {
+    document.getElementById('overlay').style.display = 'none';
+    modal.remove();
+}
+
+// Search and Filter Functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const searchInput = document.querySelector('.search-box input');
+    const filterButton = document.querySelector('.query-filters button');
+    
+    searchInput.addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const cards = document.querySelectorAll('.query-card');
+        
+        cards.forEach(card => {
+            const title = card.querySelector('h5').textContent.toLowerCase();
+            const description = card.querySelector('p').textContent.toLowerCase();
+            
+            if (title.includes(searchTerm) || description.includes(searchTerm)) {
+                card.parentElement.style.display = 'block';
+            } else {
+                card.parentElement.style.display = 'none';
+            }
+        });
+    });
+    
+    filterButton.addEventListener('click', function() {
+        const priorityFilter = document.querySelector('select[value=""]').value;
+        const statusFilter = document.querySelector('select[value=""]').value;
+        const cards = document.querySelectorAll('.query-card');
+        
+        cards.forEach(card => {
+            const priority = card.querySelector('.priority-badge').textContent.toLowerCase();
+            const status = card.querySelector('.status-indicator').nextElementSibling.textContent.toLowerCase();
+            
+            const priorityMatch = !priorityFilter || priority.includes(priorityFilter);
+            const statusMatch = !statusFilter || status === statusFilter;
+            
+            card.parentElement.style.display = (priorityMatch && statusMatch) ? 'block' : 'none';
+        });
+    });
+});
+// Initialize the application
+document.addEventListener('DOMContentLoaded', function() {
+    initializeApp();
+    initializeEventListeners();
+});
+
+// Application state
+const appState = {
+    currentView: 'grid',
+    filters: {
+        priority: '',
+        status: '',
+        search: ''
+    },
+    queries: [
+        {
+            id: 1,
+            title: 'Solar Panel Installation Query',
+            description: 'Client inquiring about the timeline and process for solar panel installation in their new property.',
+            priority: 'high',
+            status: 'open',
+            responses: 5,
+            timestamp: new Date(Date.now() - 7200000), // 2 hours ago
+            timeline: [
+                { date: '2024-02-13', action: 'Query received', user: 'Client' },
+                { date: '2024-02-13', action: 'Assigned to technical team', user: 'System' },
+                { date: '2024-02-13', action: 'Initial assessment completed', user: 'Tech Team' }
+            ]
+        },
+        {
+            id: 2,
+            title: 'Water Conservation System',
+            description: 'Technical questions about the water recycling system implementation and maintenance schedule.',
+            priority: 'medium',
+            status: 'pending',
+            responses: 3,
+            timestamp: new Date(Date.now() - 18000000), // 5 hours ago
+            timeline: [
+                { date: '2024-02-13', action: 'Query received', user: 'Client' },
+                { date: '2024-02-13', action: 'Under review', user: 'Support Team' }
+            ]
+        },
+        {
+            id: 3,
+            title: 'Energy Efficiency Report',
+            description: 'Request for detailed energy consumption analysis and efficiency recommendations.',
+            priority: 'low',
+            status: 'closed',
+            responses: 2,
+            timestamp: new Date(Date.now() - 86400000), // 1 day ago
+            timeline: [
+                { date: '2024-02-12', action: 'Query received', user: 'Client' },
+                { date: '2024-02-12', action: 'Report generated', user: 'Analysis Team' },
+                { date: '2024-02-13', action: 'Query closed', user: 'System' }
+            ]
+        }
+    ]
+};
+
+function initializeApp() {
+    renderQueries();
+    updateFilterCounts();
+}
+
+function initializeEventListeners() {
+    // Form submission
+    document.querySelector('#queryForm form').addEventListener('submit', handleNewQuery);
+    
+    // Filter change listeners
+    document.querySelectorAll('.query-filters select').forEach(select => {
+        select.addEventListener('change', updateFilters);
+    });
+    
+    // Search input listener
+    document.querySelector('.search-box input').addEventListener('input', handleSearch);
+    
+    // View toggle buttons
+    document.querySelectorAll('[onclick^="toggleView"]').forEach(button => {
+        button.addEventListener('click', (e) => {
+            const view = e.target.closest('button').getAttribute('onclick').match(/'([^']+)'/)[1];
+            toggleView(view);
+        });
+    });
+}
+
+function handleNewQuery(e) {
+    e.preventDefault();
+    const form = e.target;
+    const newQuery = {
+        id: appState.queries.length + 1,
+        title: form.querySelector('input[type="text"]').value,
+        description: form.querySelector('textarea').value,
+        priority: form.querySelector('select[required]').value,
+        status: 'open',
+        responses: 0,
+        timestamp: new Date(),
+        timeline: [
+            { date: formatDate(new Date()), action: 'Query received', user: 'Client' }
+        ]
+    };
+    
+    appState.queries.unshift(newQuery);
+    renderQueries();
+    hideQueryForm();
+    form.reset();
+}
+
+function updateFilters() {
+    appState.filters.priority = document.querySelector('select[value=""]').value;
+    appState.filters.status = document.querySelector('select[value=""]').value;
+    renderQueries();
+    updateFilterCounts();
+}
+
+function handleSearch(e) {
+    appState.filters.search = e.target.value.toLowerCase();
+    renderQueries();
+}
+
+function renderQueries() {
+    const grid = document.getElementById('queryGrid');
+    grid.innerHTML = '';
+    
+    const filteredQueries = filterQueries();
+    
+    filteredQueries.forEach((query, index) => {
+        const queryCard = createQueryCard(query, index);
+        grid.appendChild(queryCard);
+    });
+}
+
+function filterQueries() {
+    return appState.queries.filter(query => {
+        const matchesPriority = !appState.filters.priority || query.priority === appState.filters.priority;
+        const matchesStatus = !appState.filters.status || query.status === appState.filters.status;
+        const matchesSearch = !appState.filters.search || 
+            query.title.toLowerCase().includes(appState.filters.search) ||
+            query.description.toLowerCase().includes(appState.filters.search);
+        
+        return matchesPriority && matchesStatus && matchesSearch;
+    });
+}
+
+function createQueryCard(query, index) {
+    const col = document.createElement('div');
+    col.className = `col-md-6 col-lg-4 slide-in`;
+    col.style.animationDelay = `${index * 0.1}s`;
+    
+    const timeAgo = formatTimeAgo(query.timestamp);
+    
+    col.innerHTML = `
+        <div class="query-card p-4 position-relative">
+            <span class="priority-badge priority-${query.priority}">${capitalizeFirst(query.priority)} Priority</span>
+            <h5 class="mb-3">${query.title}</h5>
+            <p class="text-muted mb-3">${query.description}</p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <span class="text-muted"><i class="far fa-clock me-2"></i>${timeAgo}</span>
+                <span class="text-muted"><i class="far fa-comment me-2"></i>${query.responses} responses</span>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <span class="status-indicator status-${query.status}"></span>
+                    <span>${capitalizeFirst(query.status)}</span>
+                </div>
+                <button class="btn btn-sm btn-outline-dark" onclick="viewQuery(${query.id})">View Details</button>
+            </div>
+        </div>
+    `;
+    
+    return col;
+}
+
+function updateFilterCounts() {
+    const counts = {
+        priority: { high: 0, medium: 0, low: 0 },
+        status: { open: 0, pending: 0, closed: 0 }
+    };
+    
+    appState.queries.forEach(query => {
+        counts.priority[query.priority]++;
+        counts.status[query.status]++;
+    });
+    
+    // Update filter options with counts
+    document.querySelectorAll('select[value=""] option').forEach(option => {
+        const value = option.value.toLowerCase();
+        if (value && counts.priority[value] !== undefined) {
+            option.textContent = `${capitalizeFirst(value)} (${counts.priority[value]})`;
+        } else if (value && counts.status[value] !== undefined) {
+            option.textContent = `${capitalizeFirst(value)} (${counts.status[value]})`;
+        }
+    });
+}
+
+// Utility functions
+function formatTimeAgo(date) {
+    const seconds = Math.floor((new Date() - date) / 1000);
+    
+    const intervals = {
+        year: 31536000,
+        month: 2592000,
+        week: 604800,
+        day: 86400,
+        hour: 3600,
+        minute: 60
+    };
+    
+    for (let [unit, secondsInUnit] of Object.entries(intervals)) {
+        const interval = Math.floor(seconds / secondsInUnit);
+        if (interval >= 1) {
+            return `${interval} ${unit}${interval === 1 ? '' : 's'} ago`;
+        }
+    }
+    
+    return 'Just now';
+}
+
+function formatDate(date) {
+    return date.toISOString().split('T')[0];
+}
+
+function capitalizeFirst(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+// Export functionality
+function exportQueries(format = 'csv') {
+    const queries = filterQueries();
+    
+    if (format === 'csv') {
+        const headers = ['ID', 'Title', 'Description', 'Priority', 'Status', 'Responses', 'Timestamp'];
+        const csvContent = [
+            headers.join(','),
+            ...queries.map(q => [
+                q.id,
+                `"${q.title}"`,
+                `"${q.description}"`,
+                q.priority,
+                q.status,
+                q.responses,
+                q.timestamp.toISOString()
+            ].join(','))
+        ].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = `queries_export_${formatDate(new Date())}.csv`;
+        link.click();
+    }
+}
+</script>
+</body>
+</html>
+
+    

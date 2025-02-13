@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AGASTYA - Solar, Himachal Pradesh</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary-black: #000000;
+            --primary-white: #ffffff;
+            --light-gray: #f8f9fa;
+            --hover-gray: #2c2c2c;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--light-gray);
+        }
+
+        /* Enhanced Sidebar */
+        .sidebar {
+            transition: all 0.4s ease;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+        }
+
+        .nav-link {
+            position: relative;
+            transition: all 0.4s ease;
+            border-left: 3px solid transparent;
+            padding: 1rem 1.5rem;
+            margin: 0.5rem 0;
+            border-radius: 0 50px 50px 0;
+        }
+
+        .nav-link:hover {
+            background: var(--hover-gray);
+            border-left: 3px solid var(--primary-white);
+            padding-left: 2rem;
+        }
+
+        .nav-link i {
+            transition: transform 0.4s ease;
+        }
+
+        .nav-link:hover i {
+            transform: scale(1.2);
+        }
+
+        /* Enhanced Cards */
+        .stat-card {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            padding: 2rem;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .stat-card:hover::before {
+            transform: translateX(100%);
+        }
+
+        .stat-card h2 {
+            font-size: 2.5rem;
+            margin: 1rem 0;
+            font-weight: 700;
+        }
+
+        /* Enhanced Table */
+        .table-container {
+            background: var(--primary-white);
+            border-radius: 15px;
+            padding: 1.5rem;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+
+        .table tr {
+            transition: all 0.3s ease;
+            border-radius: 10px;
+        }
+
+        .table tr:hover {
+            background: var(--light-gray);
+            transform: scale(1.01) translateX(10px);
+        }
+
+        /* Enhanced Badges */
+        .sustainability-badge {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            padding: 0.5rem 1rem;
+            border-radius: 25px;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin: 0.2rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .sustainability-badge:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* Enhanced Progress Bars */
+        .progress {
+            height: 10px;
+            background: var(--light-gray);
+            border-radius: 5px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            transition: width 1.5s ease-in-out;
+            background: linear-gradient(90deg, var(--primary-black), var(--hover-gray));
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: progressShine 2s infinite;
+        }
+
+        /* New Animations */
+        @keyframes progressShine {
+            to { left: 200%; }
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        /* New Weather Widget */
+        .weather-widget {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            padding: 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .weather-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* Enhanced Button */
+        .btn-elegant {
+            background: var(--primary-black);
+            color: var(--primary-white);
+            padding: 0.8rem 1.5rem;
+            border-radius: 25px;
+            border: 2px solid var(--primary-black);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-elegant:hover {
+            background: var(--primary-white);
+            color: var(--primary-black);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Enhanced Sidebar -->
+            <div class="col-md-3 col-lg-2 d-md-block bg-black sidebar collapse" style="min-height: 100vh;">
+                <div class="position-sticky pt-4">
+                    <h3 class="text-white px-3 mb-4" style="font-weight: 700;">AGASTYA</h3>
+                    <div class="px-3 mb-4">
+                        <span class="sustainability-badge">
+                            <i class="bi bi-geo-alt-fill"></i> Solar, Himachal Pradesh
+                        </span>
+                    </div>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link text-white active" href="#dashboard">
+                                <i class="bi bi-grid-fill me-2"></i>
+                                Dashboard
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="Housing.html">
+                                <i class="bi bi-houses-fill me-2"></i>
+                                Housing Projects
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="Sustainable.html">
+                                <i class="bi bi-leaf-fill me-2"></i>
+                                Sustainability
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-white" href="client.html">
+                                <i class="bi bi-people-fill me-2"></i>
+                                Clients
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Enhanced Main Content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 py-4">
+                <!-- Weather Widget -->
+                <div class="weather-widget" data-aos="fade-down">
+                    <div class="row align-items-center">
+                        <div class="col-auto">
+                            <i class="bi bi-sun-fill weather-icon"></i>
+                        </div>
+                        <div class="col">
+                            <h5 class="mb-0">Solar, Himachal Pradesh</h5>
+                            <p class="mb-0">Perfect weather for solar generation</p>
+                        </div>
+                        <div class="col-auto">
+                            <h3 class="mb-0">25°C</h3>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header -->
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center mb-4">
+                    <h1 class="h2 mb-0">Sustainable Housing Overview</h1>
+                    <button type="button" class="btn btn-elegant">
+                        <i class="bi bi-plus-lg me-2"></i>
+                        New Project
+                    </button>
+                </div>
+
+                <!-- Enhanced Stats Cards -->
+                <div class="row g-4 mb-4">
+                    <div class="col-md-3" data-aos="fade-up">
+                        <div class="stat-card">
+                            <div>
+                                <i class="bi bi-house-fill mb-3" style="font-size: 2rem;"></i>
+                                <h6>Ready Units</h6>
+                                <h2>28</h2>
+                            </div>
+                            <span class="sustainability-badge">
+                                <i class="bi bi-arrow-up-right"></i> +5 this month
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="fade-up" data-aos-delay="100">
+                        <div class="stat-card">
+                            <div>
+                                <i class="bi bi-lightning-fill mb-3" style="font-size: 2rem;"></i>
+                                <h6>Energy Generated</h6>
+                                <h2>145 kW</h2>
+                            </div>
+                            <span class="sustainability-badge">Daily Average</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="fade-up" data-aos-delay="200">
+                        <div class="stat-card">
+                            <div>
+                                <i class="bi bi-droplet-fill mb-3" style="font-size: 2rem;"></i>
+                                <h6>Water Harvested</h6>
+                                <h2>12,000 L</h2>
+                            </div>
+                            <span class="sustainability-badge">Monthly</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3" data-aos="fade-up" data-aos-delay="300">
+                        <div class="stat-card">
+                            <div>
+                                <i class="bi bi-tree-fill mb-3" style="font-size: 2rem;"></i>
+                                <h6>Carbon Offset</h6>
+                                <h2>45 Tons</h2>
+                            </div>
+                            <span class="sustainability-badge">Year to Date</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enhanced Projects Table -->
+                <div class="table-container mb-4" data-aos="fade-up">
+                    <h5 class="mb-4">Current Housing Projects</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Project Name</th>
+                                    <th>Location</th>
+                                    <th>Units</th>
+                                    <th>Features</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-building me-2"></i>
+                                        Himalayan Heights
+                                    </td>
+                                    <td>Solar East</td>
+                                    <td>12</td>
+                                    <td>
+                                        <span class="sustainability-badge">
+                                            <i class="bi bi-sun-fill me-1"></i>Solar
+                                        </span>
+                                        <span class="sustainability-badge">
+                                            <i class="bi bi-cloud-rain-fill me-1"></i>Rainwater
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="sustainability-badge">Ready</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-building me-2"></i>
+                                        Valley View Homes
+                                    </td>
+                                    <td>Solar West</td>
+                                    <td>16</td>
+                                    <td>
+                                        <span class="sustainability-badge">
+                                            <i class="bi bi-sun-fill me-1"></i>Solar
+                                        </span>
+                                        <span class="sustainability-badge">
+                                            <i class="bi bi-recycle me-1"></i>Biogas
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="sustainability-badge">In Progress</span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Enhanced Sustainability Metrics -->
+                <div class="table-container" data-aos="fade-up">
+                    <h5 class="mb-4">Sustainability Performance</h5>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Metric</th>
+                                    <th>Current</th>
+                                    <th>Target</th>
+                                    <th>Progress</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-sun me-2"></i>
+                                        Solar Energy Utilization
+                                    </td>
+                                    <td>85%</td>
+                                    <td>90%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: 85%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-droplet me-2"></i>
+                                        Water Self-Sufficiency
+                                    </td>
+                                    <td>75%</td>
+                                    <td>80%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: 75%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-recycle me-2"></i>
+                                        Waste Management
+                                    </td>
+                                    <td>92%</td>
+                                    <td>95%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: 92%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <i class="bi bi-tree me-2"></i>
+                                        Green Coverage
+                                    </td>
+                                    <td>88%</td>
+                                    <td>90%</td>
+                                    <td>
+                                        <div class="progress">
+                                            <div class="progress-bar" style="width: 88%"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    <script>
+        AOS.init({
+            duration: 800,
+            once: true,
+            mirror: true,
+            offset: 100
+        });
+
+        // Enhanced progress bar animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const progressBar = entry.target.querySelector('.progress-bar');
+                    const targetWidth = progressBar.style.width;
+                    progressBar.style.width = '0%';
+                    setTimeout(() => {
+                        progressBar.style.width = targetWidth;
+                    }, 100);
+                }
+            });
+        });
+
+        document.querySelectorAll('.progress').forEach(progress => {
+            observer.observe(progress);
+        });
+    </script>
+</body>
+</html>
